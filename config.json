@@ -141,7 +141,7 @@
 								"dropLabels": ["DEBUG", "LOGGING"],
 								"minify": true
 							},
-							"modules": ["@minecraft/server@2.5.0", "@minecraft/server-ui@2.0.0"],
+							"modules": ["@minecraft/server@2.9.0", "@minecraft/server-ui@2.1.0"],
 							"outfile": "BP/scripts/main.js"
 						}
 					}
@@ -160,7 +160,7 @@
 								"minify": false
 							},
 							"debugBuild": true,
-							"modules": ["@minecraft/server@2.5.0", "@minecraft/server-ui@2.0.0"],
+							"modules": ["@minecraft/server@2.9.0", "@minecraft/server-ui@2.1.0"],
 							"outfile": "BP/scripts/main.js"
 						}
 					}
