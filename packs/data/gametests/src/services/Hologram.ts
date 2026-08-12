@@ -1,27 +1,20 @@
-import {
-	system,
-	Dimension,
-	Entity,
-	type Player,
-	type Vector3,
-} from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import { Schematic } from "../codec/Schematic.js";
-import { getBlockShape, CUBE_SHAPE } from "../codec/ShapeMap.js";
-import { getBlockTextureIndex } from "../codec/TextureMap.js";
-import LitematicaPELogger from "../utils/Logger.js";
-import { showActionBarProgress, clearActionBar } from "../utils/ProgressBar.js";
+import { system, Dimension, Entity, type Player, type Vector3 } from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import { Schematic } from '../codec/Schematic.js';
+import { getBlockShape, CUBE_SHAPE } from '../codec/ShapeMap.js';
+import { getBlockTextureIndex } from '../codec/TextureMap.js';
+import LitematicaPELogger from '../utils/Logger.js';
+import { showActionBarProgress, clearActionBar } from '../utils/ProgressBar.js';
 
-const log = LitematicaPELogger.get("Hologram");
+const log = LitematicaPELogger.get('Hologram');
 
 const PROGRESS_INTERVAL = 200;
-const HOLOGRAM_ENTITY = "r4isen1920_litematicape:hologram";
-const BATCH_ENTITY = "r4isen1920_litematicape:hologram_batch";
+const HOLOGRAM_ENTITY = 'r4isen1920_litematicape:hologram';
+const BATCH_ENTITY = 'r4isen1920_litematicape:hologram_batch';
 
 const BATCH_GRID = 4;
 const BITS_PER_MASK = 16;
 const SPAWNS_PER_TICK = 4;
-
 
 //#region SESSION
 
@@ -33,12 +26,7 @@ export class HologramSession {
 	private entities: Entity[] = [];
 	private jobId?: number;
 
-	constructor(
-		schematic: Schematic,
-		origin: Vector3,
-		dimension: Dimension,
-		player: Player,
-	) {
+	constructor(schematic: Schematic, origin: Vector3, dimension: Dimension, player: Player) {
 		this.schematic = schematic;
 		this.origin = Vec3.from(origin);
 		this.dimension = dimension;
@@ -66,8 +54,16 @@ export class HologramSession {
 								const fallbacks: { worldPos: Vec3; typeId: string }[] = [];
 
 								for (let ly = 0; ly < BATCH_GRID && chunkY + ly < sizeY; ly += 1) {
-									for (let lz = 0; lz < BATCH_GRID && chunkZ + lz < sizeZ; lz += 1) {
-										for (let lx = 0; lx < BATCH_GRID && chunkX + lx < sizeX; lx += 1) {
+									for (
+										let lz = 0;
+										lz < BATCH_GRID && chunkZ + lz < sizeZ;
+										lz += 1
+									) {
+										for (
+											let lx = 0;
+											lx < BATCH_GRID && chunkX + lx < sizeX;
+											lx += 1
+										) {
 											const gx = chunkX + lx;
 											const gy = chunkY + ly;
 											const gz = chunkZ + lz;
@@ -84,7 +80,8 @@ export class HologramSession {
 											}
 
 											const texIdx = getBlockTextureIndex(entry.typeId);
-											const cellIndex = ly * BATCH_GRID * BATCH_GRID + lz * BATCH_GRID + lx;
+											const cellIndex =
+												ly * BATCH_GRID * BATCH_GRID + lz * BATCH_GRID + lx;
 
 											let cells = groups.get(texIdx);
 											if (cells === undefined) {
@@ -97,7 +94,9 @@ export class HologramSession {
 								}
 
 								const chunkWorldPos = session.origin.add(
-									chunkX + 0.5, chunkY, chunkZ + 0.5,
+									chunkX + 0.5,
+									chunkY,
+									chunkZ + 0.5
 								);
 								let spawnedThisTick = 0;
 
@@ -107,13 +106,13 @@ export class HologramSession {
 									try {
 										const entity = session.dimension.spawnEntity(
 											BATCH_ENTITY,
-											chunkWorldPos,
+											chunkWorldPos
 										);
-										entity.setProperty("r4isen1920_litematicape:tex", texIdx);
-										entity.setProperty("r4isen1920_litematicape:m0", masks[0]);
-										entity.setProperty("r4isen1920_litematicape:m1", masks[1]);
-										entity.setProperty("r4isen1920_litematicape:m2", masks[2]);
-										entity.setProperty("r4isen1920_litematicape:m3", masks[3]);
+										entity.setProperty('r4isen1920_litematicape:tex', texIdx);
+										entity.setProperty('r4isen1920_litematicape:m0', masks[0]);
+										entity.setProperty('r4isen1920_litematicape:m1', masks[1]);
+										entity.setProperty('r4isen1920_litematicape:m2', masks[2]);
+										entity.setProperty('r4isen1920_litematicape:m3', masks[3]);
 										session.entities.push(entity);
 										batchCount += cells.length;
 										spawnedThisTick += 1;
@@ -130,10 +129,14 @@ export class HologramSession {
 									try {
 										const entity = session.dimension.spawnEntity(
 											HOLOGRAM_ENTITY,
-											{ x: fb.worldPos.x + 0.5, y: fb.worldPos.y, z: fb.worldPos.z + 0.5 },
+											{
+												x: fb.worldPos.x + 0.5,
+												y: fb.worldPos.y,
+												z: fb.worldPos.z + 0.5
+											}
 										);
 										entity.runCommand(
-											`replaceitem entity @s slot.weapon.mainhand 0 ${fb.typeId}`,
+											`replaceitem entity @s slot.weapon.mainhand 0 ${fb.typeId}`
 										);
 										session.entities.push(entity);
 										fallbackCount += 1;
@@ -149,8 +152,10 @@ export class HologramSession {
 
 								if ((batchCount + fallbackCount) % PROGRESS_INTERVAL === 0) {
 									showActionBarProgress(
-										session.player, "\u00a77Previewing...",
-										batchCount + fallbackCount, totalNonAir,
+										session.player,
+										'\u00a77Previewing...',
+										batchCount + fallbackCount,
+										totalNonAir
 									);
 								}
 								yield;
@@ -161,10 +166,10 @@ export class HologramSession {
 					session.jobId = undefined;
 					clearActionBar(session.player);
 					log.info(
-						`Batch preview: ${batchCount} batched, ${fallbackCount} fallback, ${session.entities.length} entities`,
+						`Batch preview: ${batchCount} batched, ${fallbackCount} fallback, ${session.entities.length} entities`
 					);
 					resolve(batchCount + fallbackCount);
-				})(),
+				})()
 			);
 		});
 	}
@@ -173,13 +178,13 @@ export class HologramSession {
 		this.cancel();
 		for (const entity of this.entities) {
 			try {
-				entity.triggerEvent("r4isen1920_litematicape:instant_despawn");
+				entity.triggerEvent('r4isen1920_litematicape:instant_despawn');
 			} catch {
 				// Entity already invalid/removed
 			}
 		}
 		this.entities = [];
-		log.info("Cleared hologram preview");
+		log.info('Cleared hologram preview');
 	}
 
 	get isPreviewing(): boolean {
@@ -194,7 +199,6 @@ export class HologramSession {
 	}
 }
 
-
 //#region BITMASK
 
 function encodeBitmask(cellIndices: number[]): [number, number, number, number] {
@@ -203,7 +207,7 @@ function encodeBitmask(cellIndices: number[]): [number, number, number, number] 
 	for (const idx of cellIndices) {
 		const maskIndex = (idx / BITS_PER_MASK) | 0;
 		const bit = idx % BITS_PER_MASK;
-		masks[maskIndex] |= (1 << bit);
+		masks[maskIndex] |= 1 << bit;
 	}
 
 	return masks;

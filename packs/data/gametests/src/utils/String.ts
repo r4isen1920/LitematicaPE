@@ -43,32 +43,32 @@ String.prototype.toTitle = function () {
 
 String.prototype.abrevCaps = function (threshold: number = 4) {
 	const _IGNORED_WORDS = [
-		"and",
-		"the",
-		"of",
-		"in",
-		"on",
-		"at",
-		"to",
-		"for",
-		"with",
-		"as",
-		"by",
-		"an",
-		"a",
-		"or",
-		"but",
-		"nor",
-		"yet",
-		"so",
+		'and',
+		'the',
+		'of',
+		'in',
+		'on',
+		'at',
+		'to',
+		'for',
+		'with',
+		'as',
+		'by',
+		'an',
+		'a',
+		'or',
+		'but',
+		'nor',
+		'yet',
+		'so'
 	];
-	return this.split(" ")
+	return this.split(' ')
 		.map((word) =>
 			word.length < threshold && !_IGNORED_WORDS.includes(word.toLowerCase())
 				? word.toUpperCase()
-				: word,
+				: word
 		)
-		.join(" ");
+		.join(' ');
 };
 
 export {};

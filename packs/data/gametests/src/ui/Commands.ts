@@ -2,20 +2,20 @@ import {
 	Player,
 	ItemStack,
 	ItemLockMode,
-	type ScriptEventCommandMessageAfterEvent,
-} from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import { WAND_ITEM, WAND_NAME, SelectionManager } from "./Selection.js";
-import { showMainMenu } from "./forms/MainMenu.js";
-import { showImportForm } from "./forms/Import.js";
-import { SystemScriptEventReceive } from "../utils/EventDecorators.js";
-import LitematicaPELogger from "../utils/Logger.js";
+	type ScriptEventCommandMessageAfterEvent
+} from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import { WAND_ITEM, WAND_NAME, SelectionManager } from './Selection.js';
+import { showMainMenu } from './forms/MainMenu.js';
+import { showImportForm } from './forms/Import.js';
+import { SystemScriptEventReceive } from '../utils/EventDecorators.js';
+import LitematicaPELogger from '../utils/Logger.js';
 
-const log = LitematicaPELogger.get("Commands");
+const log = LitematicaPELogger.get('Commands');
 
 //#region Constants
 
-const NAMESPACE = "dw";
+const NAMESPACE = 'dw';
 
 //#endregion
 
@@ -27,11 +27,11 @@ export function giveWand(player: Player): void {
 	item.lockMode = ItemLockMode.inventory;
 	item.keepOnDeath = true;
 
-	const inventory = player.getComponent("inventory");
+	const inventory = player.getComponent('inventory');
 	inventory?.container?.addItem(item);
 	log.info(`${player.name} received LitematicaPE Wand`);
 	player.sendMessage(
-		"§dReceived LitematicaPE Wand! §7Right-click to set Pos1, break to set Pos2.",
+		'§dReceived LitematicaPE Wand! §7Right-click to set Pos1, break to set Pos2.'
 	);
 }
 
@@ -50,28 +50,28 @@ export class CommandHandler {
 		const cmd = ev.id.slice(NAMESPACE.length + 1);
 		const args = ev.message.trim();
 
-		log.info(`${player.name} executed command: ${cmd}${args ? ` ${args}` : ""}`);
+		log.info(`${player.name} executed command: ${cmd}${args ? ` ${args}` : ''}`);
 
 		switch (cmd) {
-			case "menu":
+			case 'menu':
 				showMainMenu(player);
 				break;
-			case "wand":
+			case 'wand':
 				giveWand(player);
 				break;
-			case "pos1":
+			case 'pos1':
 				CommandHandler.setPos(player, 1, args);
 				break;
-			case "pos2":
+			case 'pos2':
 				CommandHandler.setPos(player, 2, args);
 				break;
-			case "capture":
+			case 'capture':
 				showMainMenu(player);
 				break;
-			case "paste":
+			case 'paste':
 				showImportForm(player);
 				break;
-			case "cancel":
+			case 'cancel':
 				CommandHandler.clearSelection(player);
 				break;
 			default:
@@ -92,7 +92,7 @@ export class CommandHandler {
 			if (parts.length >= 3 && parts.every((n) => !isNaN(n))) {
 				pos = Vec3.from(parts[0], parts[1], parts[2]);
 			} else {
-				player.sendMessage("§cUsage: /scriptevent dw:pos1 <x> <y> <z>");
+				player.sendMessage('§cUsage: /scriptevent dw:pos1 <x> <y> <z>');
 				return;
 			}
 		} else {
@@ -102,14 +102,12 @@ export class CommandHandler {
 		if (posNum === 1) sel.pos1 = pos;
 		else sel.pos2 = pos;
 
-		player.sendMessage(
-			`§dPos${posNum} §7set to §f${pos.x}, ${pos.y}, ${pos.z}`,
-		);
+		player.sendMessage(`§dPos${posNum} §7set to §f${pos.x}, ${pos.y}, ${pos.z}`);
 	}
 
 	private static clearSelection(player: Player): void {
 		SelectionManager.get(player).clear();
-		player.sendMessage("§7Selection cleared.");
+		player.sendMessage('§7Selection cleared.');
 	}
 }
 

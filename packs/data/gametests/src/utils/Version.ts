@@ -4,14 +4,12 @@ import {
 	CustomCommandOrigin,
 	CustomCommandResult,
 	CustomCommandStatus,
-	world,
+	world
 } from '@minecraft/server';
 import Meta from '../Meta';
 import { BindThis, CustomCmd, OnWorldLoad } from '@bedrock-oss/stylish';
 import LitematicaPELogger from './Logger';
 import { Registry } from '@bedrock-oss/add-on-registry';
-
-
 
 //#region Types
 /**
@@ -30,7 +28,6 @@ interface VersionData {
 	version: Version;
 	commit: string;
 }
-
 
 //#region Version
 /**
@@ -57,7 +54,6 @@ export default class Version {
 		this.version = version;
 	}
 
-
 	//#region Tracker
 
 	private saveToWorld(): void {
@@ -68,15 +64,14 @@ export default class Version {
 	private static onWorldLoad(): void {
 		const version = world.getDynamicProperty('r4isen1920_waila:version');
 		const currentVersion = Version.get();
-		const comparison =
-			typeof version === 'string' ? Version.compareTo(version) : -1;
+		const comparison = typeof version === 'string' ? Version.compareTo(version) : -1;
 
 		const context: VersionChangeContext = {
 			previous:
-				typeof version === "string"
+				typeof version === 'string'
 					? { version: new Version(version), commit: Meta.github.commit }
 					: null,
-			current: { version: currentVersion, commit: Meta.github.commit },
+			current: { version: currentVersion, commit: Meta.github.commit }
 		};
 
 		if (comparison < 0) {
@@ -92,16 +87,12 @@ export default class Version {
 			currentVersion.saveToWorld();
 			this.onDowngrade(context);
 		} else {
-			this.log.info(
-				`World is up to date with ${currentVersion.version}.`
-			);
+			this.log.info(`World is up to date with ${currentVersion.version}.`);
 		}
 
 		this.log.info(`Add-On namespace registry size: ${Object.keys(Registry).length}`);
 		this.log.info('WAILA is loaded and running!');
 	}
-
-
 
 	//#region Hooks
 
@@ -113,8 +104,6 @@ export default class Version {
 		// TODO: add logic here to handle any necessary updates when the version downgrades
 	}
 
-
-
 	//#region API
 	/**
 	 * Retrieves the current Version of this pack.
@@ -122,9 +111,7 @@ export default class Version {
 	 */
 	public static get(): Version {
 		if (!this._instance) {
-			this._instance = new Version(
-				Meta.github.tag || Meta.manifest.bp.version
-			);
+			this._instance = new Version(Meta.github.tag || Meta.manifest.bp.version);
 		}
 		return this._instance;
 	}
@@ -149,11 +136,7 @@ export default class Version {
 			.replace(/[^0-9.]/g, '')
 			.split('.')
 			.map(Number);
-		const [currX, currY, currZ] = [
-			current.major,
-			current.minor,
-			current.patch,
-		].map(Number);
+		const [currX, currY, currZ] = [current.major, current.minor, current.patch].map(Number);
 
 		if (currX !== x) return x - currX;
 		if (currY !== y) return y - currY;
@@ -169,19 +152,17 @@ export default class Version {
 @CustomCmd
 export class VersionCommand implements CustomCommand {
 	readonly name = 'r4isen1920_waila:version';
-	readonly description =
-		'Displays the current version of the WAILA Add-On.';
+	readonly description = 'Displays the current version of the WAILA Add-On.';
 	readonly permissionLevel = CommandPermissionLevel.Any;
 
 	@BindThis
 	run(_origin: CustomCommandOrigin): CustomCommandResult {
 		const msgBody =
-			`WAILA is running on ${Version.get().version}! ` +
-			`(commit: ${Meta.github.commit})`;
+			`WAILA is running on ${Version.get().version}! ` + `(commit: ${Meta.github.commit})`;
 
 		return {
 			status: CustomCommandStatus.Success,
-			message: msgBody,
+			message: msgBody
 		};
 	}
 }

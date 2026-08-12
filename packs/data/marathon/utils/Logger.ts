@@ -23,6 +23,6 @@ export function createLogger(prefix: string): Logger {
 	return {
 		info: (...args: unknown[]) => console.log(resolvedPrefix, ...args),
 		warn: (...args: unknown[]) => console.warn(resolvedPrefix, ...args),
-		error: (...args: unknown[]) => console.error(resolvedPrefix, ...args),
+		error: (...args: unknown[]) => console.error(resolvedPrefix, ...args)
 	};
 }

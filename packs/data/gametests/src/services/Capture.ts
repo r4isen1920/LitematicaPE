@@ -1,10 +1,10 @@
-import { system, BlockVolume, Dimension, type Player } from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import { Schematic, AIR_INDEX } from "../codec/Schematic.js";
-import { posToIndex } from "../utils/Indexing.js";
-import LitematicaPELogger from "../utils/Logger.js";
-import { ensureLoaded } from "../utils/ChunkLoader.js";
-import { showActionBarProgress, clearActionBar } from "../utils/ProgressBar.js";
+import { system, BlockVolume, Dimension, type Player } from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import { Schematic, AIR_INDEX } from '../codec/Schematic.js';
+import { posToIndex } from '../utils/Indexing.js';
+import LitematicaPELogger from '../utils/Logger.js';
+import { ensureLoaded } from '../utils/ChunkLoader.js';
+import { showActionBarProgress, clearActionBar } from '../utils/ProgressBar.js';
 
 const PROGRESS_INTERVAL = 200;
 
@@ -14,20 +14,20 @@ const PROGRESS_INTERVAL = 200;
  * It iterates through the specified volume, reads block data, and constructs a Schematic representation.
  */
 export class CaptureService {
-	private static readonly log = LitematicaPELogger.get("Capture");
+	private static readonly log = LitematicaPELogger.get('Capture');
 
 	/**
 	 * Given a dimension and a block volume, captures the blocks within that volume and returns a Schematic object representing it.
 	 * This function runs the capture process as a job and slices it into several ticks.
-	 * @param dimension 
-	 * @param volume 
+	 * @param dimension
+	 * @param volume
 	 * @param player The player performing the capture, used for chunk loading and progress display.
-	 * @returns 
+	 * @returns
 	 */
 	static async capture(
 		dimension: Dimension,
 		volume: BlockVolume,
-		player: Player,
+		player: Player
 	): Promise<Schematic> {
 		const handle = await ensureLoaded(player, volume);
 
@@ -47,7 +47,7 @@ export class CaptureService {
 
 						if (!block || block.isAir) {
 							if (processed % PROGRESS_INTERVAL === 0) {
-								showActionBarProgress(player, "§7Capturing...", processed, total);
+								showActionBarProgress(player, '§7Capturing...', processed, total);
 							}
 							yield;
 							continue;
@@ -60,7 +60,7 @@ export class CaptureService {
 						schematic.blocks[idx] = palIdx;
 
 						if (processed % PROGRESS_INTERVAL === 0) {
-							showActionBarProgress(player, "§7Capturing...", processed, total);
+							showActionBarProgress(player, '§7Capturing...', processed, total);
 						}
 						yield;
 					}
@@ -69,12 +69,11 @@ export class CaptureService {
 					handle.restore();
 
 					CaptureService.log.info(
-						`Capture complete: ${schematic.getTotalNonAir()} blocks, ${schematic.palette.length} palette entries`,
+						`Capture complete: ${schematic.getTotalNonAir()} blocks, ${schematic.palette.length} palette entries`
 					);
 					resolve(schematic);
-				})(),
+				})()
 			);
 		});
 	}
 }
-

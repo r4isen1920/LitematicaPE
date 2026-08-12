@@ -1,13 +1,6 @@
-import {
-	BlockPalette,
-	Schematic,
-	PaletteEntry,
-	BlockStates,
-} from "./Schematic.js";
-import { deflateSync, inflateSync } from "fflate";
-import CodecBinary from "./Binary.js";
-
-
+import { BlockPalette, Schematic, PaletteEntry, BlockStates } from './Schematic.js';
+import { deflateSync, inflateSync } from 'fflate';
+import CodecBinary from './Binary.js';
 
 //#region Codec
 /**
@@ -20,11 +13,11 @@ import CodecBinary from "./Binary.js";
 export default class Codec {
 	/**
 	 * The prefix for each part of the encoded schematic, followed by "part/total:" and the chunk data.
-	 * It is used to identify and parse the parts during decoding. 
-	 * 
+	 * It is used to identify and parse the parts during decoding.
+	 *
 	 * The prefix also denotes the format version, for future compatibility.
 	 */
-	private static readonly MAGIC = "DW01:";
+	private static readonly MAGIC = 'DW01:';
 	/**
 	 * Maximum length of each part, including the header.
 	 * This number could theoretically be much higher--that is, within the 32-bit int limit--but intentionally keeping it small
@@ -32,14 +25,13 @@ export default class Codec {
 	 */
 	private static readonly MAX_PART_LENGTH = 65_535;
 	/** Characters used for Base64 encoding */
-	private static readonly B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+	private static readonly B64 =
+		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 	/** Prefix for Minecraft block IDs--to differentiate custom blocks from vanilla ones */
-	private static readonly MC_PREFIX = "minecraft:";
-
+	private static readonly MC_PREFIX = 'minecraft:';
 
 	/** Cannot be instantiated */
 	private constructor() {}
-
 
 	/**
 	 * Transforms a Schematic object into a compact string format suitable for sharing.
@@ -89,7 +81,7 @@ export default class Codec {
 			return {
 				part: parseInt(match[1]),
 				total: parseInt(match[2]),
-				data: match[3],
+				data: match[3]
 			};
 		}
 		return { part: 1, total: 1, data: rest };
@@ -103,7 +95,7 @@ export default class Codec {
 	static decode(parts: string[]): Schematic {
 		const parsed = parts.map((p) => {
 			const h = Codec.parseHeader(p);
-			if (!h) throw new Error("Invalid LitematicaPE schematic string");
+			if (!h) throw new Error('Invalid LitematicaPE schematic string');
 			return h;
 		});
 
@@ -115,15 +107,15 @@ export default class Codec {
 			}
 		}
 
-		const b64 = parsed.map((p) => p.data.replace(/\s/g, "")).join("");
-		if (b64.length === 0) throw new Error("Empty schematic data");
+		const b64 = parsed.map((p) => p.data.replace(/\s/g, '')).join('');
+		if (b64.length === 0) throw new Error('Empty schematic data');
 
 		let compressed: Uint8Array;
 		try {
 			compressed = Codec.fromBase64(b64);
 		} catch {
 			throw new Error(
-				"Schematic data appears truncated. Ensure all parts were copied in full.",
+				'Schematic data appears truncated. Ensure all parts were copied in full.'
 			);
 		}
 
@@ -131,15 +123,11 @@ export default class Codec {
 		try {
 			raw = inflateSync(compressed);
 		} catch {
-			throw new Error(
-				"Corrupt schematic data. Ensure all parts were copied correctly.",
-			);
+			throw new Error('Corrupt schematic data. Ensure all parts were copied correctly.');
 		}
 
 		return Codec.deserializeBinary(raw);
 	}
-
-
 
 	//#region Serialization
 
@@ -158,7 +146,7 @@ export default class Codec {
 		for (const entry of entries) {
 			const typeId = entry.typeId.startsWith(this.MC_PREFIX)
 				? entry.typeId.slice(this.MC_PREFIX.length)
-				: ":" + entry.typeId;
+				: ':' + entry.typeId;
 			buf.writeString(typeId);
 
 			const stateKeys = Object.keys(entry.states);
@@ -166,13 +154,13 @@ export default class Codec {
 			for (const key of stateKeys) {
 				const shortKey = key.startsWith(this.MC_PREFIX)
 					? key.slice(this.MC_PREFIX.length)
-					: ":" + key;
+					: ':' + key;
 				buf.writeString(shortKey);
 
 				const val = entry.states[key];
-				if (typeof val === "boolean") {
+				if (typeof val === 'boolean') {
 					buf.writeUint8(val ? 1 : 0);
-				} else if (typeof val === "number") {
+				} else if (typeof val === 'number') {
 					buf.writeUint8(2);
 					buf.writeInt32(val);
 				} else {
@@ -221,15 +209,13 @@ export default class Codec {
 		const entries: PaletteEntry[] = [];
 		for (let i = 0; i < paletteLen; i++) {
 			const rawId = buf.readString();
-			const typeId = rawId.startsWith(":") ? rawId.slice(1) : this.MC_PREFIX + rawId;
+			const typeId = rawId.startsWith(':') ? rawId.slice(1) : this.MC_PREFIX + rawId;
 
 			const stateCount = buf.readVarint();
 			const states: BlockStates = {};
 			for (let s = 0; s < stateCount; s++) {
 				const rawKey = buf.readString();
-				const key = rawKey.startsWith(":")
-					? rawKey.slice(1)
-					: this.MC_PREFIX + rawKey;
+				const key = rawKey.startsWith(':') ? rawKey.slice(1) : this.MC_PREFIX + rawKey;
 
 				const tag = buf.readUint8();
 				if (tag <= 1) {
@@ -258,12 +244,10 @@ export default class Codec {
 		return new Schematic({ x: sizeX, y: sizeY, z: sizeZ }, palette, blocks);
 	}
 
-
-
 	//#region Base64
 
 	private static toBase64(bytes: Uint8Array): string {
-		let result = "";
+		let result = '';
 		for (let i = 0; i < bytes.length; i += 3) {
 			const b0 = bytes[i];
 			const b1 = i + 1 < bytes.length ? bytes[i + 1] : 0;
@@ -281,7 +265,7 @@ export default class Codec {
 		const lookup = new Map<string, number>();
 		for (let i = 0; i < this.B64.length; i++) lookup.set(this.B64[i], i);
 
-		const clean = b64.replace(/[^A-Za-z0-9\-_]/g, "");
+		const clean = b64.replace(/[^A-Za-z0-9\-_]/g, '');
 		const bytes: number[] = [];
 
 		for (let i = 0; i < clean.length; i += 4) {
@@ -298,8 +282,6 @@ export default class Codec {
 		return new Uint8Array(bytes);
 	}
 }
-
-
 
 //#region Types
 /**

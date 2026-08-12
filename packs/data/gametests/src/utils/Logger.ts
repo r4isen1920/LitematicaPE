@@ -1,5 +1,5 @@
-import { Logger as Log, LogLevel } from "@bedrock-oss/bedrock-boost";
-import { OnWorldLoad } from "@bedrock-oss/stylish";
+import { Logger as Log, LogLevel } from '@bedrock-oss/bedrock-boost';
+import { OnWorldLoad } from '@bedrock-oss/stylish';
 
 export default class LitematicaPELogger {
 	private constructor() {}
@@ -9,7 +9,7 @@ export default class LitematicaPELogger {
 		if (whatFor) {
 			tags.add(whatFor);
 		}
-		return Log.getLogger("LitematicaPE", ...Array.from(tags));
+		return Log.getLogger('LitematicaPE', ...Array.from(tags));
 	}
 
 	@OnWorldLoad

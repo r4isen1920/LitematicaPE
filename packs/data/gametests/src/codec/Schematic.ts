@@ -1,6 +1,6 @@
-import { posToIndex, indexToPos } from "../utils/Indexing.js";
-import { BlockVolume, type Vector3 } from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
+import { posToIndex, indexToPos } from '../utils/Indexing.js';
+import { BlockVolume, type Vector3 } from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
 
 //#region Types
 
@@ -24,7 +24,7 @@ export class BlockPalette {
 	private hash(typeId: string, states: BlockStates): string {
 		const keys = Object.keys(states).sort();
 		const parts = keys.map((k) => `${k}=${states[k]}`);
-		return `${typeId}|${parts.join(",")}`;
+		return `${typeId}|${parts.join(',')}`;
 	}
 
 	getOrAdd(typeId: string, states: BlockStates): number {
@@ -77,7 +77,7 @@ export class Schematic {
 		this.palette = palette ?? new BlockPalette();
 		const capacity = new BlockVolume(
 			Vec3.Zero,
-			Vec3.from(size.x - 1, size.y - 1, size.z - 1),
+			Vec3.from(size.x - 1, size.y - 1, size.z - 1)
 		).getCapacity();
 		this.blocks = blocks ?? new Array(capacity).fill(AIR_INDEX);
 	}

@@ -1,7 +1,7 @@
-import { initializeEventSubscriptions } from "./utils/EventDecorators.js";
+import { initializeEventSubscriptions } from './utils/EventDecorators.js';
 
 // Side-effect imports: trigger decorator registration
-import "./ui/Selection.js";
-import "./ui/Commands.js";
+import './ui/Selection.js';
+import './ui/Commands.js';
 
 initializeEventSubscriptions();

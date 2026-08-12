@@ -5,8 +5,6 @@ import { join } from '@std/path';
 import { createLogger } from './utils/Logger.ts';
 import { writeJsonFile } from './utils/Write.ts';
 
-
-
 //#region config
 
 const CONFIG = {
@@ -16,12 +14,15 @@ const CONFIG = {
 	cubeBoneNames: ['cube'],
 
 	bitsPerMask: 16,
-	maskProps: ['r4isen1920_litematicape:m0', 'r4isen1920_litematicape:m1', 'r4isen1920_litematicape:m2', 'r4isen1920_litematicape:m3'],
+	maskProps: [
+		'r4isen1920_litematicape:m0',
+		'r4isen1920_litematicape:m1',
+		'r4isen1920_litematicape:m2',
+		'r4isen1920_litematicape:m3'
+	]
 } as const;
 
 const logger = createLogger('RenderControllerGen');
-
-
 
 //#region entry
 
@@ -34,7 +35,11 @@ function main() {
 	logger.info(`Found ${textureNames.length} block textures.`);
 
 	const renderController = buildRenderController(textureNames);
-	writeJsonFile('RP/render_controllers/r4isen1920_litematicape_batch.rc.json', renderController, logger);
+	writeJsonFile(
+		'RP/render_controllers/r4isen1920_litematicape_batch.rc.json',
+		renderController,
+		logger
+	);
 
 	const textureIndex = buildTextureIndexTs(textureNames);
 	writeTextureIndexFile(textureIndex);
@@ -43,8 +48,6 @@ function main() {
 }
 
 main();
-
-
 
 //#region RENDER CONTROLLER
 
@@ -58,17 +61,17 @@ function buildRenderController(textureNames: string[]): Record<string, unknown> 
 			'controller.render.r4isen1920_litematicape.batch.cube': {
 				arrays: {
 					textures: {
-						'Array.block_textures': textureArray,
-					},
+						'Array.block_textures': textureArray
+					}
 				},
 				geometry: 'Geometry.batch_cube',
 				materials: [{ '*': 'Material.default' }],
 				textures: ["Array.block_textures[q.property('r4isen1920_litematicape:tex')]"],
 				part_visibility: [partVisibility],
 				is_hurt_color: {},
-				on_fire_color: {},
-			},
-		},
+				on_fire_color: {}
+			}
+		}
 	};
 }
 
@@ -86,9 +89,10 @@ function buildPartVisibility(): Record<string, string> {
 		const bit = cellIndex % CONFIG.bitsPerMask;
 		const maskProp = CONFIG.maskProps[maskIndex];
 
-		const molang = bit === 0
-			? `math.mod(q.property('${maskProp}'), 2)`
-			: `math.mod(math.floor(q.property('${maskProp}') / ${2 ** bit}), 2)`;
+		const molang =
+			bit === 0
+				? `math.mod(q.property('${maskProp}'), 2)`
+				: `math.mod(math.floor(q.property('${maskProp}') / ${2 ** bit}), 2)`;
 
 		for (const boneName of CONFIG.cubeBoneNames) {
 			visibility[`${boneName}_${suffix}`] = molang;
@@ -97,8 +101,6 @@ function buildPartVisibility(): Record<string, string> {
 
 	return visibility;
 }
-
-
 
 //#region TEXTURE INDEX
 
@@ -125,8 +127,6 @@ function writeTextureIndexFile(content: string) {
 	logger.info(`Writing texture index to ${targetFile}...`);
 	Deno.writeTextFileSync(targetFile, content);
 }
-
-
 
 //#region io
 

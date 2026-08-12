@@ -49,7 +49,7 @@ import {
 	PlayerButtonInputAfterEvent,
 	PlayerHotbarSelectedSlotChangeAfterEvent,
 	DataDrivenEntityTriggerAfterEvent,
-	ScriptEventCommandMessageAfterEvent,
+	ScriptEventCommandMessageAfterEvent
 } from '@minecraft/server';
 import LitematicaPELogger from './Logger.js';
 
@@ -154,10 +154,10 @@ const eventRegistry: EventRegistry = {
 		playerGameModeChange: [],
 		playerButtonInput: [],
 		playerHotbarSelectedSlotChange: [],
-		dataDrivenEntityTrigger: [],
+		dataDrivenEntityTrigger: []
 	},
 	systemAfterEvents: {
-		scriptEventReceive: [],
+		scriptEventReceive: []
 	},
 	beforeEvents: {
 		playerInteractWithBlock: [],
@@ -169,8 +169,8 @@ const eventRegistry: EventRegistry = {
 		weatherChange: [],
 		effectAdd: [],
 		playerBreakBlock: [],
-		playerGameModeChange: [],
-	},
+		playerGameModeChange: []
+	}
 };
 
 /**
@@ -178,24 +178,18 @@ const eventRegistry: EventRegistry = {
  */
 function createEventDecorator<T>(
 	eventType: 'afterEvents' | 'beforeEvents' | 'systemAfterEvents',
-	eventName: keyof EventRegistry['afterEvents'] | keyof EventRegistry['beforeEvents'] | keyof EventRegistry['systemAfterEvents']
+	eventName:
+		| keyof EventRegistry['afterEvents']
+		| keyof EventRegistry['beforeEvents']
+		| keyof EventRegistry['systemAfterEvents']
 ) {
-	return function (
-		target: any,
-		propertyKey: string,
-		descriptor: PropertyDescriptor
-	) {
+	return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
 		const handler = descriptor.value as EventHandler<T>;
 		const boundHandler = handler.bind(target);
 		(eventRegistry[eventType] as any)[eventName].push(boundHandler);
-		log.debug(
-			`Registered ${eventType}.${eventName} handler: ${target.name}.${propertyKey}`
-		);
+		log.debug(`Registered ${eventType}.${eventName} handler: ${target.name}.${propertyKey}`);
 	};
 }
-
-
-
 
 //#region AfterEvents
 
@@ -204,10 +198,11 @@ export function AfterPlayerPlaceBlock(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PlayerPlaceBlockAfterEvent>(
-		'afterEvents',
-		'playerPlaceBlock'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PlayerPlaceBlockAfterEvent>('afterEvents', 'playerPlaceBlock')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPlayerBreakBlock(
@@ -215,10 +210,11 @@ export function AfterPlayerBreakBlock(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PlayerBreakBlockAfterEvent>(
-		'afterEvents',
-		'playerBreakBlock'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PlayerBreakBlockAfterEvent>('afterEvents', 'playerBreakBlock')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPlayerInteractWithBlock(
@@ -243,59 +239,44 @@ export function AfterPlayerInteractWithEntity(
 	)(target, propertyKey, descriptor);
 }
 
-export function AfterPlayerLeave(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<PlayerLeaveAfterEvent>(
-		'afterEvents',
-		'playerLeave'
-	)(target, propertyKey, descriptor);
+export function AfterPlayerLeave(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<PlayerLeaveAfterEvent>('afterEvents', 'playerLeave')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterPlayerJoin(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<PlayerJoinAfterEvent>(
-		'afterEvents',
-		'playerJoin'
-	)(target, propertyKey, descriptor);
+export function AfterPlayerJoin(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<PlayerJoinAfterEvent>('afterEvents', 'playerJoin')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterPlayerSpawn(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<PlayerSpawnAfterEvent>(
-		'afterEvents',
-		'playerSpawn'
-	)(target, propertyKey, descriptor);
+export function AfterPlayerSpawn(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<PlayerSpawnAfterEvent>('afterEvents', 'playerSpawn')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterEntityDie(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EntityDieAfterEvent>(
-		'afterEvents',
-		'entityDie'
-	)(target, propertyKey, descriptor);
+export function AfterEntityDie(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EntityDieAfterEvent>('afterEvents', 'entityDie')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterEntityHurt(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EntityHurtAfterEvent>(
-		'afterEvents',
-		'entityHurt'
-	)(target, propertyKey, descriptor);
+export function AfterEntityHurt(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EntityHurtAfterEvent>('afterEvents', 'entityHurt')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterEntityHitEntity(
@@ -303,10 +284,11 @@ export function AfterEntityHitEntity(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<EntityHitEntityAfterEvent>(
-		'afterEvents',
-		'entityHitEntity'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<EntityHitEntityAfterEvent>('afterEvents', 'entityHitEntity')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterEntityHitBlock(
@@ -314,21 +296,19 @@ export function AfterEntityHitBlock(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<EntityHitBlockAfterEvent>(
-		'afterEvents',
-		'entityHitBlock'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<EntityHitBlockAfterEvent>('afterEvents', 'entityHitBlock')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterEntityLoad(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EntityLoadAfterEvent>(
-		'afterEvents',
-		'entityLoad'
-	)(target, propertyKey, descriptor);
+export function AfterEntityLoad(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EntityLoadAfterEvent>('afterEvents', 'entityLoad')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterEntityRemove(
@@ -336,39 +316,30 @@ export function AfterEntityRemove(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<EntityRemoveAfterEvent>(
-		'afterEvents',
-		'entityRemove'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<EntityRemoveAfterEvent>('afterEvents', 'entityRemove')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterEntitySpawn(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EntitySpawnAfterEvent>(
-		'afterEvents',
-		'entitySpawn'
-	)(target, propertyKey, descriptor);
+export function AfterEntitySpawn(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EntitySpawnAfterEvent>('afterEvents', 'entitySpawn')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterExplosion(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<ExplosionAfterEvent>(
-		'afterEvents',
-		'explosion'
-	)(target, propertyKey, descriptor);
+export function AfterExplosion(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<ExplosionAfterEvent>('afterEvents', 'explosion')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterItemUse(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
+export function AfterItemUse(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
 	return createEventDecorator<ItemUseAfterEvent>('afterEvents', 'itemUse')(
 		target,
 		propertyKey,
@@ -381,21 +352,19 @@ export function AfterItemStartUse(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ItemStartUseAfterEvent>(
-		'afterEvents',
-		'itemStartUse'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ItemStartUseAfterEvent>('afterEvents', 'itemStartUse')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterItemStopUse(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<ItemStopUseAfterEvent>(
-		'afterEvents',
-		'itemStopUse'
-	)(target, propertyKey, descriptor);
+export function AfterItemStopUse(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<ItemStopUseAfterEvent>('afterEvents', 'itemStopUse')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterItemCompleteUse(
@@ -403,10 +372,11 @@ export function AfterItemCompleteUse(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ItemCompleteUseAfterEvent>(
-		'afterEvents',
-		'itemCompleteUse'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ItemCompleteUseAfterEvent>('afterEvents', 'itemCompleteUse')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterItemReleaseUse(
@@ -414,10 +384,11 @@ export function AfterItemReleaseUse(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ItemReleaseUseAfterEvent>(
-		'afterEvents',
-		'itemReleaseUse'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ItemReleaseUseAfterEvent>('afterEvents', 'itemReleaseUse')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterItemStartUseOn(
@@ -425,10 +396,11 @@ export function AfterItemStartUseOn(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ItemStartUseOnAfterEvent>(
-		'afterEvents',
-		'itemStartUseOn'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ItemStartUseOnAfterEvent>('afterEvents', 'itemStartUseOn')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterItemStopUseOn(
@@ -436,10 +408,11 @@ export function AfterItemStopUseOn(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ItemStopUseOnAfterEvent>(
-		'afterEvents',
-		'itemStopUseOn'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ItemStopUseOnAfterEvent>('afterEvents', 'itemStopUseOn')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterBlockExplode(
@@ -447,32 +420,27 @@ export function AfterBlockExplode(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<BlockExplodeAfterEvent>(
-		'afterEvents',
-		'blockExplode'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<BlockExplodeAfterEvent>('afterEvents', 'blockExplode')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterButtonPush(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<ButtonPushAfterEvent>(
-		'afterEvents',
-		'buttonPush'
-	)(target, propertyKey, descriptor);
+export function AfterButtonPush(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<ButtonPushAfterEvent>('afterEvents', 'buttonPush')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterLeverAction(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<LeverActionAfterEvent>(
-		'afterEvents',
-		'leverAction'
-	)(target, propertyKey, descriptor);
+export function AfterLeverAction(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<LeverActionAfterEvent>('afterEvents', 'leverAction')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPistonActivate(
@@ -480,10 +448,11 @@ export function AfterPistonActivate(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PistonActivateAfterEvent>(
-		'afterEvents',
-		'pistonActivate'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PistonActivateAfterEvent>('afterEvents', 'pistonActivate')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPressurePlatePop(
@@ -491,10 +460,11 @@ export function AfterPressurePlatePop(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PressurePlatePopAfterEvent>(
-		'afterEvents',
-		'pressurePlatePop'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PressurePlatePopAfterEvent>('afterEvents', 'pressurePlatePop')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPressurePlatePush(
@@ -502,10 +472,11 @@ export function AfterPressurePlatePush(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PressurePlatePushAfterEvent>(
-		'afterEvents',
-		'pressurePlatePush'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PressurePlatePushAfterEvent>('afterEvents', 'pressurePlatePush')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterProjectileHitBlock(
@@ -513,10 +484,11 @@ export function AfterProjectileHitBlock(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<ProjectileHitBlockAfterEvent>(
-		'afterEvents',
-		'projectileHitBlock'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<ProjectileHitBlockAfterEvent>('afterEvents', 'projectileHitBlock')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterProjectileHitEntity(
@@ -535,10 +507,11 @@ export function AfterTargetBlockHit(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<TargetBlockHitAfterEvent>(
-		'afterEvents',
-		'targetBlockHit'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<TargetBlockHitAfterEvent>('afterEvents', 'targetBlockHit')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterTripWireTrip(
@@ -546,10 +519,11 @@ export function AfterTripWireTrip(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<TripWireTripAfterEvent>(
-		'afterEvents',
-		'tripWireTrip'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<TripWireTripAfterEvent>('afterEvents', 'tripWireTrip')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterWeatherChange(
@@ -557,21 +531,19 @@ export function AfterWeatherChange(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<WeatherChangeAfterEvent>(
-		'afterEvents',
-		'weatherChange'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<WeatherChangeAfterEvent>('afterEvents', 'weatherChange')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function AfterEffectAdd(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EffectAddAfterEvent>(
-		'afterEvents',
-		'effectAdd'
-	)(target, propertyKey, descriptor);
+export function AfterEffectAdd(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EffectAddAfterEvent>('afterEvents', 'effectAdd')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPlayerGameModeChange(
@@ -590,10 +562,11 @@ export function AfterPlayerButtonInput(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PlayerButtonInputAfterEvent>(
-		'afterEvents',
-		'playerButtonInput'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PlayerButtonInputAfterEvent>('afterEvents', 'playerButtonInput')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function AfterPlayerHotbarSelectedSlotChange(
@@ -618,9 +591,6 @@ export function AfterDataDrivenEntityTrigger(
 	)(target, propertyKey, descriptor);
 }
 
-
-
-
 //#region SystemAfterEvents
 
 export function SystemScriptEventReceive(
@@ -633,9 +603,6 @@ export function SystemScriptEventReceive(
 		'scriptEventReceive'
 	)(target, propertyKey, descriptor);
 }
-
-
-
 
 //#region BeforeEvents
 
@@ -666,21 +633,19 @@ export function BeforePlayerLeave(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PlayerLeaveBeforeEvent>(
-		'beforeEvents',
-		'playerLeave'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PlayerLeaveBeforeEvent>('beforeEvents', 'playerLeave')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function BeforeItemUse(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<ItemUseBeforeEvent>(
-		'beforeEvents',
-		'itemUse'
-	)(target, propertyKey, descriptor);
+export function BeforeItemUse(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<ItemUseBeforeEvent>('beforeEvents', 'itemUse')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function BeforeEntityRemove(
@@ -688,21 +653,19 @@ export function BeforeEntityRemove(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<EntityRemoveBeforeEvent>(
-		'beforeEvents',
-		'entityRemove'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<EntityRemoveBeforeEvent>('beforeEvents', 'entityRemove')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function BeforeExplosion(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<ExplosionBeforeEvent>(
-		'beforeEvents',
-		'explosion'
-	)(target, propertyKey, descriptor);
+export function BeforeExplosion(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<ExplosionBeforeEvent>('beforeEvents', 'explosion')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function BeforeWeatherChange(
@@ -710,21 +673,19 @@ export function BeforeWeatherChange(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<WeatherChangeBeforeEvent>(
-		'beforeEvents',
-		'weatherChange'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<WeatherChangeBeforeEvent>('beforeEvents', 'weatherChange')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
-export function BeforeEffectAdd(
-	target: any,
-	propertyKey: string,
-	descriptor: PropertyDescriptor
-) {
-	return createEventDecorator<EffectAddBeforeEvent>(
-		'beforeEvents',
-		'effectAdd'
-	)(target, propertyKey, descriptor);
+export function BeforeEffectAdd(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+	return createEventDecorator<EffectAddBeforeEvent>('beforeEvents', 'effectAdd')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function BeforePlayerBreakBlock(
@@ -732,10 +693,11 @@ export function BeforePlayerBreakBlock(
 	propertyKey: string,
 	descriptor: PropertyDescriptor
 ) {
-	return createEventDecorator<PlayerBreakBlockBeforeEvent>(
-		'beforeEvents',
-		'playerBreakBlock'
-	)(target, propertyKey, descriptor);
+	return createEventDecorator<PlayerBreakBlockBeforeEvent>('beforeEvents', 'playerBreakBlock')(
+		target,
+		propertyKey,
+		descriptor
+	);
 }
 
 export function BeforePlayerGameModeChange(
@@ -749,9 +711,6 @@ export function BeforePlayerGameModeChange(
 	)(target, propertyKey, descriptor);
 }
 
-
-
-
 //#region Init
 
 /**
@@ -760,68 +719,50 @@ export function BeforePlayerGameModeChange(
  */
 export function initializeEventSubscriptions() {
 	// Subscribe to all after events
-	for (const [eventName, handlers] of Object.entries(
-		eventRegistry.afterEvents
-	)) {
+	for (const [eventName, handlers] of Object.entries(eventRegistry.afterEvents)) {
 		if (handlers.length > 0) {
 			(world.afterEvents as any)[eventName].subscribe((event: any) => {
 				for (const handler of handlers) {
 					try {
 						handler(event);
 					} catch (error) {
-						log.error(
-							`Error in afterEvents.${eventName} handler: ${error}`
-						);
+						log.error(`Error in afterEvents.${eventName} handler: ${error}`);
 					}
 				}
 			});
-			log.info(
-				`Subscribed ${handlers.length} handler(s) to afterEvents.${eventName}`
-			);
+			log.info(`Subscribed ${handlers.length} handler(s) to afterEvents.${eventName}`);
 		}
 	}
 
 	// Subscribe to all system after events
-	for (const [eventName, handlers] of Object.entries(
-		eventRegistry.systemAfterEvents
-	)) {
+	for (const [eventName, handlers] of Object.entries(eventRegistry.systemAfterEvents)) {
 		if (handlers.length > 0) {
 			(system.afterEvents as any)[eventName].subscribe((event: any) => {
 				for (const handler of handlers) {
 					try {
 						handler(event);
 					} catch (error) {
-						log.error(
-							`Error in system.afterEvents.${eventName} handler: ${error}`
-						);
+						log.error(`Error in system.afterEvents.${eventName} handler: ${error}`);
 					}
 				}
 			});
-			log.info(
-				`Subscribed ${handlers.length} handler(s) to system.afterEvents.${eventName}`
-			);
+			log.info(`Subscribed ${handlers.length} handler(s) to system.afterEvents.${eventName}`);
 		}
 	}
 
 	// Subscribe to all before events
-	for (const [eventName, handlers] of Object.entries(
-		eventRegistry.beforeEvents
-	)) {
+	for (const [eventName, handlers] of Object.entries(eventRegistry.beforeEvents)) {
 		if (handlers.length > 0) {
 			(world.beforeEvents as any)[eventName].subscribe((event: any) => {
 				for (const handler of handlers) {
 					try {
 						handler(event);
 					} catch (error) {
-						log.error(
-							`Error in beforeEvents.${eventName} handler: ${error}`
-						);
+						log.error(`Error in beforeEvents.${eventName} handler: ${error}`);
 					}
 				}
 			});
-			log.info(
-				`Subscribed ${handlers.length} handler(s) to beforeEvents.${eventName}`
-			);
+			log.info(`Subscribed ${handlers.length} handler(s) to beforeEvents.${eventName}`);
 		}
 	}
 

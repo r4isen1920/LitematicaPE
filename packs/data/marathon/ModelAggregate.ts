@@ -1,11 +1,8 @@
-
 // @ts-nocheck
 
 import { join, relative } from '@std/path';
 import { createLogger } from './utils/Logger.ts';
 import { writeJsonFile } from './utils/Write.ts';
-
-
 
 //#region CONFIG
 
@@ -14,12 +11,10 @@ const CONFIG = {
 	cellSize: 16,
 	sourceRelativePath: 'models/entity/holo/palette',
 	outputRelativePath: 'models/entity/holo/aggregated',
-	batchRelativePath: 'models/entity/holo/batch',
+	batchRelativePath: 'models/entity/holo/batch'
 } as const;
 
 const logger = createLogger('ModelAggregate');
-
-
 
 //#region TYPES
 
@@ -48,8 +43,6 @@ interface GeometryFile extends JsonObject {
 	format_version: string;
 	'minecraft:geometry': Geometry[];
 }
-
-
 
 //#region ENTRY
 
@@ -87,16 +80,27 @@ function main() {
 			for (let y = 0; y < CONFIG.gridSize; y += 1) {
 				for (let z = 0; z < CONFIG.gridSize; z += 1) {
 					const suffix = `${x}_${y}_${z}`;
-					const offset: Vec3 = [x * CONFIG.cellSize, y * CONFIG.cellSize, z * CONFIG.cellSize];
-					const outputBones = offsetBonesForCell(sourceGeometry.bones, offset, suffix, sourceFile);
+					const offset: Vec3 = [
+						x * CONFIG.cellSize,
+						y * CONFIG.cellSize,
+						z * CONFIG.cellSize
+					];
+					const outputBones = offsetBonesForCell(
+						sourceGeometry.bones,
+						offset,
+						suffix,
+						sourceFile
+					);
 
 					const outputGeometry: Geometry = {
 						...sourceGeometry,
 						description: {
-							...(isObject(sourceGeometry.description) ? sourceGeometry.description : {}),
-							identifier: buildInstanceIdentifier(sourceGeometry.description, x, y, z),
+							...(isObject(sourceGeometry.description)
+								? sourceGeometry.description
+								: {}),
+							identifier: buildInstanceIdentifier(sourceGeometry.description, x, y, z)
 						},
-						bones: outputBones,
+						bones: outputBones
 					};
 
 					outputGeometries.push(outputGeometry);
@@ -108,18 +112,20 @@ function main() {
 
 		const outputFile: GeometryFile = {
 			format_version: sourceData.format_version,
-			'minecraft:geometry': outputGeometries,
+			'minecraft:geometry': outputGeometries
 		};
 
 		const outputTarget = `RP/${CONFIG.outputRelativePath}/${outputName}`;
 		writeJsonFile(outputTarget, outputFile, logger);
 
-		logger.info(`${sourceRelativeFile}: wrote ${sourceGeometryCount} geometries in ${outputName}`);
+		logger.info(
+			`${sourceRelativeFile}: wrote ${sourceGeometryCount} geometries in ${outputName}`
+		);
 
 		const batchGeometry = buildBatchGeometry(sourceData, sourceGeometry, sourceFile);
 		const batchFile: GeometryFile = {
 			format_version: sourceData.format_version,
-			'minecraft:geometry': [batchGeometry],
+			'minecraft:geometry': [batchGeometry]
 		};
 		const batchTarget = `RP/${CONFIG.batchRelativePath}/${outputName}`;
 		writeJsonFile(batchTarget, batchFile, logger);
@@ -128,24 +134,30 @@ function main() {
 	}
 
 	logger.info(
-		`Completed ${totalGeometries} geometries into ${sourceFiles.length} output files with grid ${CONFIG.gridSize}x${CONFIG.gridSize}x${CONFIG.gridSize} at cell size ${CONFIG.cellSize}.`,
+		`Completed ${totalGeometries} geometries into ${sourceFiles.length} output files with grid ${CONFIG.gridSize}x${CONFIG.gridSize}x${CONFIG.gridSize} at cell size ${CONFIG.cellSize}.`
 	);
 }
 
 main();
 
-
-
 //#region BATCH
 
-function buildBatchGeometry(sourceData: GeometryFile, sourceGeometry: Geometry, filePath: string): Geometry {
+function buildBatchGeometry(
+	sourceData: GeometryFile,
+	sourceGeometry: Geometry,
+	filePath: string
+): Geometry {
 	const allBones: Bone[] = [];
 
 	for (let x = 0; x < CONFIG.gridSize; x += 1) {
 		for (let y = 0; y < CONFIG.gridSize; y += 1) {
 			for (let z = 0; z < CONFIG.gridSize; z += 1) {
 				const suffix = `${x}_${y}_${z}`;
-				const offset: Vec3 = [x * CONFIG.cellSize, y * CONFIG.cellSize, -z * CONFIG.cellSize];
+				const offset: Vec3 = [
+					x * CONFIG.cellSize,
+					y * CONFIG.cellSize,
+					-z * CONFIG.cellSize
+				];
 				const flatBone = flattenBonesForBatchCell(sourceGeometry.bones, offset, suffix);
 				allBones.push(flatBone);
 			}
@@ -158,9 +170,9 @@ function buildBatchGeometry(sourceData: GeometryFile, sourceGeometry: Geometry, 
 			identifier: buildBatchIdentifier(sourceGeometry.description),
 			visible_bounds_width: 10,
 			visible_bounds_height: 6,
-			visible_bounds_offset: [0, 2, 0],
+			visible_bounds_offset: [0, 2, 0]
 		},
-		bones: allBones,
+		bones: allBones
 	};
 }
 
@@ -179,10 +191,13 @@ function flattenBonesForBatchCell(sourceBones: Bone[], offset: Vec3, suffix: str
 		if (!Array.isArray(bone.cubes)) continue;
 
 		for (const cube of bone.cubes) {
-			const origin = asVec3(cube.origin, `Invalid cube origin in batch flatten for bone '${bone.name}'`);
+			const origin = asVec3(
+				cube.origin,
+				`Invalid cube origin in batch flatten for bone '${bone.name}'`
+			);
 			allCubes.push({
 				...cube,
-				origin: [origin[0] + offset[0], origin[1] + offset[1], origin[2] + offset[2]],
+				origin: [origin[0] + offset[0], origin[1] + offset[1], origin[2] + offset[2]]
 			});
 		}
 	}
@@ -190,14 +205,18 @@ function flattenBonesForBatchCell(sourceBones: Bone[], offset: Vec3, suffix: str
 	return {
 		name: `cube_${suffix}`,
 		pivot: [0, 0, 0],
-		cubes: allCubes,
+		cubes: allCubes
 	} as Bone;
 }
 
-
 //#region TRANSFORM
 
-function offsetBonesForCell(sourceBones: Bone[], offset: Vec3, suffix: string, filePath: string): Bone[] {
+function offsetBonesForCell(
+	sourceBones: Bone[],
+	offset: Vec3,
+	suffix: string,
+	filePath: string
+): Bone[] {
 	const sourceNames = new Set<string>();
 	for (const sourceBone of sourceBones) {
 		sourceNames.add(sourceBone.name);
@@ -205,12 +224,16 @@ function offsetBonesForCell(sourceBones: Bone[], offset: Vec3, suffix: string, f
 
 	for (const sourceBone of sourceBones) {
 		if (typeof sourceBone.parent === 'string' && !sourceNames.has(sourceBone.parent)) {
-			throw new Error(`Parent bone not found in source geometry ${filePath}: ${sourceBone.parent}`);
+			throw new Error(
+				`Parent bone not found in source geometry ${filePath}: ${sourceBone.parent}`
+			);
 		}
 	}
 
 	const outputNames = new Set<string>();
-	const outputBones = sourceBones.map((sourceBone, index) => offsetBone(sourceBone, offset, suffix, filePath, index));
+	const outputBones = sourceBones.map((sourceBone, index) =>
+		offsetBone(sourceBone, offset, suffix, filePath, index)
+	);
 
 	for (const bone of outputBones) {
 		if (outputNames.has(bone.name)) {
@@ -228,7 +251,13 @@ function offsetBonesForCell(sourceBones: Bone[], offset: Vec3, suffix: string, f
 	return outputBones;
 }
 
-function offsetBone(sourceBone: Bone, offset: Vec3, suffix: string, filePath: string, boneIndex: number): Bone {
+function offsetBone(
+	sourceBone: Bone,
+	offset: Vec3,
+	suffix: string,
+	filePath: string,
+	boneIndex: number
+): Bone {
 	const duplicated = structuredClone(sourceBone) as Bone;
 
 	if (typeof duplicated.name !== 'string' || duplicated.name.length === 0) {
@@ -241,22 +270,31 @@ function offsetBone(sourceBone: Bone, offset: Vec3, suffix: string, filePath: st
 	}
 
 	if (Array.isArray(duplicated.cubes)) {
-		duplicated.cubes = duplicated.cubes.map((cube, cubeIndex) => offsetCubeOrigin(cube, offset, duplicated.name, cubeIndex, filePath));
+		duplicated.cubes = duplicated.cubes.map((cube, cubeIndex) =>
+			offsetCubeOrigin(cube, offset, duplicated.name, cubeIndex, filePath)
+		);
 	}
 
 	return duplicated;
 }
 
-function offsetCubeOrigin(cube: Cube, offset: Vec3, boneName: string, cubeIndex: number, filePath: string): Cube {
-	const origin = asVec3(cube.origin, `Invalid cube origin in ${filePath} bone '${boneName}' cube ${cubeIndex}`);
+function offsetCubeOrigin(
+	cube: Cube,
+	offset: Vec3,
+	boneName: string,
+	cubeIndex: number,
+	filePath: string
+): Cube {
+	const origin = asVec3(
+		cube.origin,
+		`Invalid cube origin in ${filePath} bone '${boneName}' cube ${cubeIndex}`
+	);
 
 	return {
 		...cube,
-		origin: [origin[0] + offset[0], origin[1] + offset[1], origin[2] + offset[2]],
+		origin: [origin[0] + offset[0], origin[1] + offset[1], origin[2] + offset[2]]
 	};
 }
-
-
 
 //#region IO
 
@@ -284,8 +322,7 @@ function readGeometryFile(filePath: string): GeometryFile {
 	let parsed: JsonValue;
 	try {
 		parsed = JSON.parse(content) as JsonValue;
-	}
-	catch (error) {
+	} catch (error) {
 		throw new Error(`Failed to parse JSON at ${filePath}: ${(error as Error).message}`);
 	}
 
@@ -319,15 +356,17 @@ function getPrimaryGeometry(data: GeometryFile, filePath: string): Geometry {
 	}
 
 	for (const [index, bone] of bones.entries()) {
-		if (!isObject(bone) || typeof (bone as Bone).name !== 'string' || (bone as Bone).name.length === 0) {
+		if (
+			!isObject(bone) ||
+			typeof (bone as Bone).name !== 'string' ||
+			(bone as Bone).name.length === 0
+		) {
 			throw new Error(`Invalid bone at index ${index} in ${filePath}`);
 		}
 	}
 
 	return geometry as Geometry;
 }
-
-
 
 //#region UTILS
 
@@ -348,8 +387,7 @@ function ensureDirectoryExists(directory: string, label: string) {
 		if (!stat.isDirectory) {
 			throw new Error();
 		}
-	}
-	catch {
+	} catch {
 		throw new Error(`Missing ${label}: ${directory}`);
 	}
 }
@@ -360,7 +398,12 @@ function buildOutputName(sourceRelativeFile: string): string {
 	return `${noExtension}.geo.json`;
 }
 
-function buildInstanceIdentifier(description: JsonObject | undefined, x: number, y: number, z: number): string {
+function buildInstanceIdentifier(
+	description: JsonObject | undefined,
+	x: number,
+	y: number,
+	z: number
+): string {
 	const identifier = isObject(description) ? description.identifier : undefined;
 	if (typeof identifier === 'string' && identifier.length > 0) {
 		return `${identifier}.instance.${x}_${y}_${z}`;

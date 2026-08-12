@@ -1,10 +1,8 @@
-
 /**
  * A collection of simple utils for binary serialization.
  * Supplements Codec.
  */
 export default class CodecBinary {
-
 	//#region Writer
 	/**
 	 * A simple binary writer that supports basic types and variable-length encoding.
@@ -22,12 +20,7 @@ export default class CodecBinary {
 		}
 
 		writeInt32(v: number): void {
-			this.chunks.push(
-				v & 0xff,
-				(v >> 8) & 0xff,
-				(v >> 16) & 0xff,
-				(v >> 24) & 0xff,
-			);
+			this.chunks.push(v & 0xff, (v >> 8) & 0xff, (v >> 16) & 0xff, (v >> 24) & 0xff);
 		}
 
 		writeVarint(v: number): void {
@@ -54,7 +47,7 @@ export default class CodecBinary {
 					encoded.push(
 						0xe0 | (code >> 12),
 						0x80 | ((code >> 6) & 0x3f),
-						0x80 | (code & 0x3f),
+						0x80 | (code & 0x3f)
 					);
 				}
 			}
@@ -66,7 +59,6 @@ export default class CodecBinary {
 			return new Uint8Array(this.chunks);
 		}
 	};
-
 
 	//#region Reader
 	/**
@@ -119,7 +111,7 @@ export default class CodecBinary {
 
 		readString(): string {
 			const len = this.readVarint();
-			let result = "";
+			let result = '';
 			const end = this.pos + len;
 			while (this.pos < end) {
 				const b = this.data[this.pos];
@@ -128,14 +120,14 @@ export default class CodecBinary {
 					this.pos++;
 				} else if (b < 0xe0) {
 					result += String.fromCharCode(
-						((b & 0x1f) << 6) | (this.data[this.pos + 1] & 0x3f),
+						((b & 0x1f) << 6) | (this.data[this.pos + 1] & 0x3f)
 					);
 					this.pos += 2;
 				} else {
 					result += String.fromCharCode(
 						((b & 0xf) << 12) |
 							((this.data[this.pos + 1] & 0x3f) << 6) |
-							(this.data[this.pos + 2] & 0x3f),
+							(this.data[this.pos + 2] & 0x3f)
 					);
 					this.pos += 3;
 				}

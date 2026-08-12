@@ -5,18 +5,18 @@ import {
 	Dimension,
 	Entity,
 	type Player,
-	type Vector3,
-} from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import { Schematic, AIR_INDEX } from "../codec/Schematic.js";
-import LitematicaPELogger from "../utils/Logger.js";
-import { ensureLoaded, type RestoreHandle } from "../utils/ChunkLoader.js";
-import { showActionBarProgress, clearActionBar } from "../utils/ProgressBar.js";
+	type Vector3
+} from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import { Schematic, AIR_INDEX } from '../codec/Schematic.js';
+import LitematicaPELogger from '../utils/Logger.js';
+import { ensureLoaded, type RestoreHandle } from '../utils/ChunkLoader.js';
+import { showActionBarProgress, clearActionBar } from '../utils/ProgressBar.js';
 
-const log = LitematicaPELogger.get("Placement");
+const log = LitematicaPELogger.get('Placement');
 
 const PROGRESS_INTERVAL = 200;
-const HOLOGRAM_ENTITY = "r4isen1920_litematicape:hologram";
+const HOLOGRAM_ENTITY = 'r4isen1920_litematicape:hologram';
 const CULL_DISTANCE = 64;
 const CULL_INTERVAL = 10;
 const SPAWNS_PER_TICK = 20;
@@ -43,12 +43,7 @@ export class PlacementSession {
 	private hologramEntities: Entity[] = [];
 	private cullRunId?: number;
 
-	constructor(
-		schematic: Schematic,
-		origin: Vector3,
-		dimension: Dimension,
-		player: Player,
-	) {
+	constructor(schematic: Schematic, origin: Vector3, dimension: Dimension, player: Player) {
 		this.schematic = schematic;
 		this.origin = Vec3.from(origin);
 		this.dimension = dimension;
@@ -87,15 +82,13 @@ export class PlacementSession {
 
 						self.savedBlocks.push({
 							pos: Vec3.from(worldPos),
-							permutation: block.permutation,
+							permutation: block.permutation
 						});
-						block.setPermutation(
-							BlockPermutation.resolve(entry.typeId, entry.states),
-						);
+						block.setPermutation(BlockPermutation.resolve(entry.typeId, entry.states));
 						placed++;
 
 						if (placed % PROGRESS_INTERVAL === 0) {
-							showActionBarProgress(self.player, "§7Placing...", placed, totalNonAir);
+							showActionBarProgress(self.player, '§7Placing...', placed, totalNonAir);
 						}
 						yield;
 					}
@@ -106,7 +99,7 @@ export class PlacementSession {
 					self.restoreHandle = undefined;
 					log.info(`Placed ${placed} blocks`);
 					resolve(placed);
-				})(),
+				})()
 			);
 		});
 	}
@@ -136,12 +129,13 @@ export class PlacementSession {
 						if (!entry) continue;
 
 						try {
-							const entity = self.dimension.spawnEntity(
-								HOLOGRAM_ENTITY,
-								{ x: worldPos.x + 0.5, y: worldPos.y, z: worldPos.z + 0.5 },
-							);
+							const entity = self.dimension.spawnEntity(HOLOGRAM_ENTITY, {
+								x: worldPos.x + 0.5,
+								y: worldPos.y,
+								z: worldPos.z + 0.5
+							});
 							entity.runCommand(
-								`replaceitem entity @s slot.weapon.mainhand 0 ${entry.typeId}`,
+								`replaceitem entity @s slot.weapon.mainhand 0 ${entry.typeId}`
 							);
 							self.hologramEntities.push(entity);
 							spawned++;
@@ -150,7 +144,12 @@ export class PlacementSession {
 						}
 
 						if (spawned % PROGRESS_INTERVAL === 0) {
-							showActionBarProgress(self.player, "§7Previewing...", spawned, totalNonAir);
+							showActionBarProgress(
+								self.player,
+								'§7Previewing...',
+								spawned,
+								totalNonAir
+							);
 						}
 						if (spawned % SPAWNS_PER_TICK === 0) yield;
 					}
@@ -160,7 +159,7 @@ export class PlacementSession {
 					self.startCulling();
 					log.info(`Previewing ${spawned} hologram entities`);
 					resolve(spawned);
-				})(),
+				})()
 			);
 		});
 	}
@@ -172,7 +171,7 @@ export class PlacementSession {
 			this.hologramEntities = this.hologramEntities.filter((entity) => {
 				try {
 					if (playerPos.distance(entity.location) > CULL_DISTANCE) {
-						entity.triggerEvent("r4isen1920_litematicape:instant_despawn");
+						entity.triggerEvent('r4isen1920_litematicape:instant_despawn');
 						return false;
 					}
 					return true;
@@ -200,13 +199,13 @@ export class PlacementSession {
 		this.stopCulling();
 		for (const entity of this.hologramEntities) {
 			try {
-				entity.triggerEvent("r4isen1920_litematicape:instant_despawn");
+				entity.triggerEvent('r4isen1920_litematicape:instant_despawn');
 			} catch {
 				// Entity already invalid/removed
 			}
 		}
 		this.hologramEntities = [];
-		log.info("Cleared hologram preview");
+		log.info('Cleared hologram preview');
 	}
 
 	get isPreviewing(): boolean {
@@ -224,11 +223,11 @@ export class PlacementSession {
 			const positions = blocks.map((b) => b.pos);
 			const min = positions.reduce(
 				(a, b) => Vec3.from(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.min(a.z, b.z)),
-				Vec3.from(positions[0]),
+				Vec3.from(positions[0])
 			);
 			const max = positions.reduce(
 				(a, b) => Vec3.from(Math.max(a.x, b.x), Math.max(a.y, b.y), Math.max(a.z, b.z)),
-				Vec3.from(positions[0]),
+				Vec3.from(positions[0])
 			);
 			const undoHandle = await ensureLoaded(this.player, new BlockVolume(min, max));
 
@@ -245,7 +244,7 @@ export class PlacementSession {
 							done++;
 
 							if (done % PROGRESS_INTERVAL === 0) {
-								showActionBarProgress(player, "§7Undoing...", done, total);
+								showActionBarProgress(player, '§7Undoing...', done, total);
 							}
 							yield;
 						}
@@ -253,7 +252,7 @@ export class PlacementSession {
 						undoHandle.restore();
 						log.info(`Undid ${blocks.length} blocks`);
 						resolve();
-					})(),
+					})()
 				);
 			});
 		}

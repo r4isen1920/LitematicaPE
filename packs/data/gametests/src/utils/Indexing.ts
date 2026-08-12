@@ -1,5 +1,5 @@
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import type { Vector3 } from "@minecraft/server";
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import type { Vector3 } from '@minecraft/server';
 
 //#region Indexing
 

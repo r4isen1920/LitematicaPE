@@ -4,17 +4,13 @@ import { join } from '@std/path';
 import { createLogger } from './utils/Logger.ts';
 import { writeJsonFile } from './utils/Write.ts';
 
-
-
 //#region config
 
 const CONFIG = {
-	batchGeometryId: 'geometry.r4isen1920_litematicape.holo.batch.common.cube',
+	batchGeometryId: 'geometry.r4isen1920_litematicape.holo.batch.common.cube'
 } as const;
 
 const logger = createLogger('ClientEntity');
-
-
 
 //#region entry
 
@@ -34,13 +30,11 @@ function main() {
 
 main();
 
-
-
 //#region BUILD
 
 function buildClientEntity(textureNames: string[]): Record<string, unknown> {
 	const textures: Record<string, string> = {
-		default: 'textures/entity/armor_stand',
+		default: 'textures/entity/armor_stand'
 	};
 
 	for (const name of textureNames) {
@@ -53,28 +47,24 @@ function buildClientEntity(textureNames: string[]): Record<string, unknown> {
 			description: {
 				identifier: 'r4isen1920_litematicape:hologram_batch',
 				materials: {
-					default: 'entity_alphatest',
+					default: 'entity_alphatest'
 				},
 				geometry: {
-					batch_cube: CONFIG.batchGeometryId,
+					batch_cube: CONFIG.batchGeometryId
 				},
 				textures,
 				scripts: {
 					animate: ['root'],
-					should_update_bones_and_effects_offscreen: true,
+					should_update_bones_and_effects_offscreen: true
 				},
 				animations: {
-					root: 'animation.r4isen1920_litematicape.hologram_batch',
+					root: 'animation.r4isen1920_litematicape.hologram_batch'
 				},
-				render_controllers: [
-					'controller.render.r4isen1920_litematicape.batch.cube',
-				],
-			},
-		},
+				render_controllers: ['controller.render.r4isen1920_litematicape.batch.cube']
+			}
+		}
 	};
 }
-
-
 
 //#region io
 

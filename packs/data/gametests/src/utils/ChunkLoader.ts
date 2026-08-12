@@ -1,8 +1,14 @@
-import { system, BlockVolume, InputPermissionCategory, type Player, type Vector3 } from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import LitematicaPELogger from "./Logger.js";
+import {
+	system,
+	BlockVolume,
+	InputPermissionCategory,
+	type Player,
+	type Vector3
+} from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import LitematicaPELogger from './Logger.js';
 
-const log = LitematicaPELogger.get("ChunkLoader");
+const log = LitematicaPELogger.get('ChunkLoader');
 
 //#region Types
 
@@ -29,10 +35,7 @@ const LOAD_DISTANCE_THRESHOLD = 64;
  * Movement is disabled while the area is being loaded and re-enabled on
  * {@link RestoreHandle.restore}.
  */
-export async function ensureLoaded(
-	player: Player,
-	area: BlockVolume,
-): Promise<RestoreHandle> {
+export async function ensureLoaded(player: Player, area: BlockVolume): Promise<RestoreHandle> {
 	const min = Vec3.from(area.getMin());
 	const max = Vec3.from(area.getMax());
 	const center = min.add(max).scale(0.5);
@@ -54,7 +57,7 @@ export async function ensureLoaded(
 
 	const waitTicks = 10 + Math.min(30, Math.max(1, 2 * (distance - 128)));
 	log.info(
-		`Teleported ${player.name} to ${center.toString("short")} for chunk loading (waiting ${waitTicks} ticks)`,
+		`Teleported ${player.name} to ${center.toString('short')} for chunk loading (waiting ${waitTicks} ticks)`
 	);
 
 	await system.waitTicks(waitTicks);
@@ -65,7 +68,7 @@ export async function ensureLoaded(
 			player.inputPermissions.setPermissionCategory(InputPermissionCategory.Movement, true);
 			player.teleport(savedPos, { dimension: savedDimension });
 			log.info(`Restored ${player.name} to original position`);
-		},
+		}
 	};
 }
 

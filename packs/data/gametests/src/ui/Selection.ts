@@ -3,21 +3,18 @@ import {
 	BlockVolume,
 	type ItemStack,
 	type PlayerInteractWithBlockBeforeEvent,
-	type PlayerBreakBlockBeforeEvent,
-} from "@minecraft/server";
-import { Vec3 } from "@bedrock-oss/bedrock-boost";
-import LitematicaPELogger from "../utils/Logger.js";
-import {
-	BeforePlayerInteractWithBlock,
-	BeforePlayerBreakBlock,
-} from "../utils/EventDecorators.js";
+	type PlayerBreakBlockBeforeEvent
+} from '@minecraft/server';
+import { Vec3 } from '@bedrock-oss/bedrock-boost';
+import LitematicaPELogger from '../utils/Logger.js';
+import { BeforePlayerInteractWithBlock, BeforePlayerBreakBlock } from '../utils/EventDecorators.js';
 
-const log = LitematicaPELogger.get("Selection");
+const log = LitematicaPELogger.get('Selection');
 
 //#region Constants
 
-export const WAND_ITEM = "minecraft:stick";
-export const WAND_NAME = "§dLitematicaPE Wand";
+export const WAND_ITEM = 'minecraft:stick';
+export const WAND_NAME = '§dLitematicaPE Wand';
 const VOLUME_WARN = 262_144; // 64³
 
 //#endregion
@@ -56,9 +53,7 @@ function isWandItem(item?: ItemStack): boolean {
 }
 
 function isWandHeld(player: Player): boolean {
-	const item = player
-		.getComponent("inventory")
-		?.container?.getItem(player.selectedSlotIndex);
+	const item = player.getComponent('inventory')?.container?.getItem(player.selectedSlotIndex);
 	return isWandItem(item);
 }
 
