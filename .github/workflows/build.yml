@@ -117,8 +117,7 @@ jobs:
                       const prsMerged = closedPRs.filter(pr => pr.merged_at && new Date(pr.merged_at) >= sinceDate);
 
                       const lines = [];
-                      lines.push(`# Release ${currentTag}`);
-                      if (compareLine) lines.push('', compareLine);
+                      if (compareLine) lines.push(compareLine);
                       lines.push('', `## Pull requests merged (${prsMerged.length})`);
                       if (prsMerged.length) {
                         for (const pr of prsMerged) {
@@ -144,11 +143,178 @@ jobs:
                         lines.push('- None');
                       }
 
+                      // Build a compact change set for AI summarization
+                      const aiLines = [];
+                      aiLines.push(`Version: ${currentTag}`);
+                      if (prevTagObj) aiLines.push(`Previous version: ${prevTagObj.name}`);
+                      if (prsMerged.length) {
+                        aiLines.push('', 'Merged pull requests:');
+                        for (const pr of prsMerged) aiLines.push(`- ${pr.title}`);
+                      }
+                      if (issuesClosed.length) {
+                        aiLines.push('', 'Closed issues:');
+                        for (const it of issuesClosed) aiLines.push(`- ${it.title}`);
+                      }
+                      if (prevTagObj) {
+                        try {
+                          const cmp = await github.rest.repos.compareCommitsWithBasehead({
+                            owner, repo, basehead: `${prevTagObj.name}...${currentTag}`
+                          });
+                          const commits = cmp.data.commits || [];
+                          if (commits.length) {
+                            aiLines.push('', 'Commits:');
+                            for (const c of commits) {
+                              const msg = (c.commit.message || '').replace(/\r/g, '').trim();
+                              aiLines.push(`- ${msg.split('\n').join('\n  ')}`);
+                            }
+                          }
+                          const files = cmp.data.files || [];
+                          if (files.length) {
+                            aiLines.push('', 'Changed files:');
+                            for (const f of files) {
+                              aiLines.push(`- ${f.status} ${f.filename} (+${f.additions}/-${f.deletions})`);
+                            }
+                            // Include a size-capped diff so the model can pick up nuance
+                            const maxDiffChars = 24000;
+                            let diff = '';
+                            for (const f of files) {
+                              if (!f.patch) continue;
+                              const block = `\n--- ${f.filename} ---\n${f.patch}\n`;
+                              if (diff.length + block.length > maxDiffChars) {
+                                diff += '\n[diff truncated]\n';
+                                break;
+                              }
+                              diff += block;
+                            }
+                            if (diff) aiLines.push('', 'Diff (may be truncated):', diff);
+                          }
+                        } catch (e) {
+                          core.warning(`compareCommits failed: ${e.message}`);
+                        }
+                      }
+
+                      core.setOutput('prev_tag', prevTagObj ? prevTagObj.name : '');
+                      core.setOutput('current_tag', currentTag);
+                      core.setOutput('ai_input', aiLines.join('\n'));
+
                       return lines.join('\n');
+            - name: Generate AI release highlights (Gemini)
+              id: gemini_summary
+              uses: actions/github-script@v7
+              env:
+                  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+                  CHANGES: ${{ steps.generate_release_notes.outputs.ai_input }}
+                  GEMINI_MAX_ATTEMPTS: '10'
+                  GEMINI_RETRY_DELAY_MS: '5000'
+              with:
+                  result-encoding: string
+                  script: | #javascript
+                      const apiKey = process.env.GEMINI_API_KEY;
+                      if (!apiKey) {
+                        core.warning('GEMINI_API_KEY secret not set; skipping AI summary.');
+                        return '';
+                      }
+                      const changes = (process.env.CHANGES || '').trim();
+                      if (!changes) {
+                        core.warning('No change data available; skipping AI summary.');
+                        return '';
+                      }
+
+                      const model = 'gemini-3.6-flash';
+                      const prompt = [
+                        'You are writing the "AI Highlights" section of a Minecraft Add-On release changelog.',
+                        'Summarize the most important changes from the data below in concise Markdown.',
+                        'Order the sections as: New content first (new origins, classes, features), then',
+                        'Changes and reworks, then Bug Fixes, then other technical, misc, or quality-of-life changes.',
+                        'Use H3 (###) headings to group these sections.',
+                        'Use nested bullet points: a top-level bullet with a bold category label, then indented',
+                        'sub-bullets for each individual item. Never cram multiple items into a single bullet.',
+                        'Example:',
+                        '- **New Stuff Under X Category:**',
+                        '  - Added **Y**: description of this particular item/feature',
+                        '  - Added **Z**: description of this particular item/feature',
+                        'DO NOT invent changes that are not listed. Output only the Markdown body, no title or disclaimer.',
+                        '',
+                        'Changes:',
+                        changes
+                      ].join('\n');
+
+                      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+                      const requestOnce = async () => {
+                        let res;
+                        try {
+                          res = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              'x-goog-api-key': apiKey
+                            },
+                            body: JSON.stringify({
+                              contents: [{ parts: [{ text: prompt }] }]
+                            })
+                          });
+                        } catch (e) {
+                          return { text: '', reason: `request error: ${e.message}` };
+                        }
+                        if (!res.ok) {
+                          return { text: '', reason: `HTTP ${res.status}: ${await res.text()}` };
+                        }
+                        const data = await res.json();
+                        const text = (data?.candidates?.[0]?.content?.parts || [])
+                          .map(p => p.text || '')
+                          .join('')
+                          .trim();
+                        const reason = text ? '' : (data?.promptFeedback?.blockReason
+                          || data?.candidates?.[0]?.finishReason
+                          || JSON.stringify(data));
+                        return { text, reason };
+                      };
+
+                      // Retry until a non-empty summary is returned, capped to avoid infinite runs.
+                      const maxAttempts = Number(process.env.GEMINI_MAX_ATTEMPTS || 10);
+                      const retryDelayMs = Number(process.env.GEMINI_RETRY_DELAY_MS || 5000);
+                      let text = '';
+                      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                        const result = await requestOnce();
+                        if (result.text) {
+                          text = result.text;
+                          break;
+                        }
+                        core.warning(`Gemini attempt ${attempt}/${maxAttempts} returned nothing. Reason: ${result.reason}`);
+                        if (attempt < maxAttempts) {
+                          await new Promise(r => setTimeout(r, retryDelayMs));
+                        }
+                      }
+                      if (!text) {
+                        core.warning(`Gemini API returned an empty summary after ${maxAttempts} attempts; skipping AI summary.`);
+                      }
+                      return text;
+            - name: Compose release body
+              shell: bash
+              env:
+                  AI_SUMMARY: ${{ steps.gemini_summary.outputs.result }}
+                  NOTES: ${{ steps.generate_release_notes.outputs.result }}
+                  CURRENT_TAG: ${{ steps.generate_release_notes.outputs.current_tag }}
+              run: |
+                  {
+                    echo "# Release $CURRENT_TAG"
+                    echo ""
+                    if [ -n "$AI_SUMMARY" ]; then
+                      echo "## AI Highlights"
+                      echo ""
+                      echo "$AI_SUMMARY"
+                      echo ""
+                      echo "> These Highlights are automatically generated by \`Gemini\`, and may make mistakes."
+                      echo ""
+                      echo "---"
+                      echo ""
+                    fi
+                    echo "$NOTES"
+                  } > release_body.md
             - name: List downloaded files
               run: ls -la ./release-files/
             - uses: softprops/action-gh-release@v1
               with:
                   fail_on_unmatched_files: true
                   files: ./release-files/*.mcaddon
-                  body: ${{ steps.generate_release_notes.outputs.result }}
+                  body_path: release_body.md
